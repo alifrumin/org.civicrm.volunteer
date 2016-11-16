@@ -230,9 +230,16 @@ function _civicrm_api3_volunteer_need_getlist_output($result, $request) {
         $projectTitle = civicrm_api3('VolunteerProject', 'getsingle', array(
           'id' => $row['project_id'],
         ));      
-       $data['label'][] = $projectTitle['title'];
-if (!empty($row['start_date'])) {
-        $data['description'][0] .= ': ' . CRM_Utils_Date::customFormat($row['start_date']);
+       $data['label'] = $projectTitle['title'];
+      $roleLabel = CRM_Core_Pseudoconstant::getLabel('CRM_Volunteer_BAO_Need', 'role_id', $row['role_id']);
+      if ($roleLabel !== NULL) {
+        $data['label'] = $data['label'] . ' - ' . $roleLabel;
+      }
+      if (!empty($row['start_time'])) {
+        $data['description'][0] .= ': ' . CRM_Utils_Date::customFormat($row['start_time']);
+      }
+   if (!empty($row['end_time'])) {
+        $data['description'][0] .= ' - ' . CRM_Utils_Date::customFormat($row['end_time']);
       }
       $output[] = $data;
     }
