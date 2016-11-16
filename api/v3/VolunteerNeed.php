@@ -186,3 +186,56 @@ function civicrm_api3_volunteer_need_delete($params) {
   return _civicrm_api3_basic_delete('CRM_Volunteer_BAO_Need', $params);
 }
 
+/**
+ * Get volunteer need list parameters.
+ *
+ * @see _civicrm_api3_generic_getlist_params
+ *
+ * @param array $request
+ */
+function _civicrm_api3_volunteer_need_getlist_params(&$request) {
+  $fieldsToReturn = array('role_id', 'id', 'project_id', 'start_time', 'end_time', 'duration', 'is_flexible', 'visibility_id', 'quantity', 'is_active');
+  $request['params']['return'] = array_unique(array_merge($fieldsToReturn, $request['extra']));
+  if (empty($request['params']['id'])) {
+    $request['params'] += array(
+      'is_active' => 1,
+    );
+  }
+}
+
+/**
+ * Get volunteer need list output.
+ *
+ * @see _civicrm_api3_generic_getlist_output
+ *
+ * @param array $result
+ * @param array $request
+ *
+ * @return array
+ */
+function _civicrm_api3_volunteer_need_getlist_output($result, $request) {
+  $output = array();
+  if (!empty($result['values'])) {
+    foreach ($result['values'] as $row) {
+      $data = array(
+        'id' => $row[$request['id_field']],
+        'description' => $row[$request['description_field']],
+        'label' => array(
+        ),
+      );
+      $roleLabel = CRM_Core_Pseudoconstant::getLabel('CRM_Volunteer_BAO_Need', 'role_id', $row['role_id']);
+      if ($roleLabel !== NULL) {
+        $data['label'][] = $roleLabel;
+      }
+        $projectTitle = civicrm_api3('VolunteerProject', 'getsingle', array(
+          'id' => $row['project_id'],
+        ));      
+       $data['label'][] = $projectTitle['title'];
+if (!empty($row['start_date'])) {
+        $data['description'][0] .= ': ' . CRM_Utils_Date::customFormat($row['start_date']);
+      }
+      $output[] = $data;
+    }
+  }
+  return $output;
+}
