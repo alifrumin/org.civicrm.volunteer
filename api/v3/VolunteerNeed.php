@@ -81,7 +81,7 @@ function civicrm_api3_volunteer_need_get($params) {
   $sql = CRM_Utils_SQL_Select::fragment();
   $sql->join(
     'title',
-    'JOIN civicrm_volunteer_project p ON p.id = project_id'
+    'JOIN civicrm_volunteer_project p ON p.id = civicrm_volunteer_need.project_id'
   );
   $sql->select(
     'p.title as title'
