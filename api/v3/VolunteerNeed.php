@@ -73,7 +73,12 @@ function _civicrm_api3_volunteer_need_create_spec(&$params) {
  * @access public
  */
 function civicrm_api3_volunteer_need_get($params) {
-  $result = _civicrm_api3_basic_get(_civicrm_api3_get_BAO(__FUNCTION__), $params);
+  $sql = "SELECT p.title as title, n.project_id as projectid, v.label as rolelabel FROM civicrm_volunteer_need n
+  LEFT JOIN civicrm_volunteer_project p
+    ON p.id = n.project_id
+  LEFT JOIN civicrm_option_value v
+    ON n.role_id = v.id";
+  $result = _civicrm_api3_basic_get(_civicrm_api3_get_BAO(__FUNCTION__), $params, TRUE, '', $sql, FALSE);
   if (!empty($result['values'])) {
     foreach ($result['values'] as &$need) {
       if (!empty($need['start_time'])) {
@@ -91,7 +96,8 @@ function civicrm_api3_volunteer_need_get($params) {
         );
         $need['role_label'] = $role['label'];
         $need['role_description'] = $role['description'];
-      } elseif (CRM_Utils_Array::value('is_flexible', $need)) {
+      }
+      elseif (CRM_Utils_Array::value('is_flexible', $need)) {
         $need['role_label'] = CRM_Volunteer_BAO_Need::getFlexibleRoleLabel();
         $need['role_description'] = NULL;
       }
@@ -185,4 +191,3 @@ function civicrm_api3_volunteer_need_getsearchresult($params) {
 function civicrm_api3_volunteer_need_delete($params) {
   return _civicrm_api3_basic_delete('CRM_Volunteer_BAO_Need', $params);
 }
-
