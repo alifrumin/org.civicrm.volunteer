@@ -120,6 +120,35 @@ class CRM_Volunteer_BAO_Need extends CRM_Volunteer_DAO_Need {
   }
 
   /**
+   * Given the list of params in the params array, fetch the object
+   * and store the values in the values array
+   *
+   * @param array $params
+   *   Input parameters to find object.
+   * @param array $values
+   *   Output values of the object.
+   *
+   * @param $ids
+   *
+   * @return CRM_Event_BAO_Participant|null the found object or null
+   */
+  public static function getValues(&$params, &$values, &$ids) {
+    if (empty($params)) {
+      return NULL;
+    }
+    $need = new CRM_Volunteer_BAO_Need();
+    $need->copyValues($params);
+    $need->find();
+    $needs = array();
+    while ($need->fetch()) {
+      $ids['need'] = $need->id;
+      CRM_Core_DAO::storeValues($need, $values[$need->id]);
+      $needs[$need->id] = $need;
+    }
+    return $needs;
+  }
+
+  /**
    * Gets display time to be used for Flexible Needs.
    *
    * Implemented as a function in case we need to use logic later (e.g., if we

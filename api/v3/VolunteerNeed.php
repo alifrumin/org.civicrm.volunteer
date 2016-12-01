@@ -72,32 +72,54 @@ function _civicrm_api3_volunteer_need_create_spec(&$params) {
  * {@getfields need_get}
  * @access public
  */
+// function civicrm_api3_volunteer_need_get($params) {
+//   $result = _civicrm_api3_basic_get(_civicrm_api3_get_BAO(__FUNCTION__), $params);
+//   if (!empty($result['values'])) {
+//     foreach ($result['values'] as &$need) {
+//       if (!empty($need['start_time'])) {
+//         $need['display_time'] = CRM_Volunteer_BAO_Need::getTimes($need['start_time'],
+//           CRM_Utils_Array::value('duration', $need),
+//           CRM_Utils_Array::value('end_time', $need));
+//       }
+//       else {
+//         $need['display_time'] = CRM_Volunteer_BAO_Need::getFlexibleDisplayTime();
+//       }
+//       if (isset($need['role_id'])) {
+//         $role = CRM_Core_OptionGroup::getRowValues(
+//           CRM_Volunteer_BAO_Assignment::ROLE_OPTION_GROUP, $need['role_id'],
+//           'value'
+//         );
+//         $need['role_label'] = $role['label'];
+//         $need['role_description'] = $role['description'];
+//       } elseif (CRM_Utils_Array::value('is_flexible', $need)) {
+//         $need['role_label'] = CRM_Volunteer_BAO_Need::getFlexibleRoleLabel();
+//         $need['role_description'] = NULL;
+//       }
+//     }
+//   }
+//   return $result;
+// }
+
+/**
+ * Retrieve a specific participant, given a set of input params.
+ *
+ * @param array $params
+ *   input parameters.
+ *
+ * @return array
+ *   array of properties, if error an array with an error id and error message
+ */
 function civicrm_api3_volunteer_need_get($params) {
-  $result = _civicrm_api3_basic_get(_civicrm_api3_get_BAO(__FUNCTION__), $params);
-  if (!empty($result['values'])) {
-    foreach ($result['values'] as &$need) {
-      if (!empty($need['start_time'])) {
-        $need['display_time'] = CRM_Volunteer_BAO_Need::getTimes($need['start_time'],
-          CRM_Utils_Array::value('duration', $need),
-          CRM_Utils_Array::value('end_time', $need));
-      }
-      else {
-        $need['display_time'] = CRM_Volunteer_BAO_Need::getFlexibleDisplayTime();
-      }
-      if (isset($need['role_id'])) {
-        $role = CRM_Core_OptionGroup::getRowValues(
-          CRM_Volunteer_BAO_Assignment::ROLE_OPTION_GROUP, $need['role_id'],
-          'value'
-        );
-        $need['role_label'] = $role['label'];
-        $need['role_description'] = $role['description'];
-      } elseif (CRM_Utils_Array::value('is_flexible', $need)) {
-        $need['role_label'] = CRM_Volunteer_BAO_Need::getFlexibleRoleLabel();
-        $need['role_description'] = NULL;
-      }
-    }
+  $mode = 0;
+  list($dao, $query) = _civicrm_api3_get_query_object($params, $mode, 'VolunteerNeed');
+  $participant = array();
+  while ($dao->fetch()) {
+    $query->convertToPseudoNames($dao, FALSE, TRUE);
+    $need[$dao->volunteer_need_id] = $query->store($dao);
+    //@todo - is this required - contribution & pledge use the same query but don't self-retrieve custom data
+    _civicrm_api3_custom_data_get($need[$dao->volunteer_need_id], CRM_Utils_Array::value('check_permissions', $params), 'VolunteerNEED', $dao->volunteer_need_id, NULL);
   }
-  return $result;
+  return civicrm_api3_create_success($need, $params, 'VolunteerNeed', 'get', $dao);
 }
 
 /**
@@ -185,4 +207,3 @@ function civicrm_api3_volunteer_need_getsearchresult($params) {
 function civicrm_api3_volunteer_need_delete($params) {
   return _civicrm_api3_basic_delete('CRM_Volunteer_BAO_Need', $params);
 }
-
