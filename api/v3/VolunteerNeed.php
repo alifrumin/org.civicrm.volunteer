@@ -80,15 +80,18 @@ function civicrm_api3_volunteer_need_get($params) {
   //   ON n.role_id = v.id";
   $sql = CRM_Utils_SQL_Select::fragment();
   $sql->join(
-    'civicrm_volunteer_project',
-    'JOIN civicrm_volunteer_project p ON p.id = n.project_id'
+    'title',
+    'JOIN civicrm_volunteer_project p ON p.id = project_id'
   );
   $sql->select(
-    'p.title as project_title'
+    'p.title as title'
   );
   $result = _civicrm_api3_basic_get(_civicrm_api3_get_BAO(__FUNCTION__), $params, TRUE, '', $sql, FALSE);
   if (!empty($result['values'])) {
     foreach ($result['values'] as &$need) {
+      if (!empty($need['title'])) {
+        $need['project_title'] = $need['title'];
+      }
       if (!empty($need['start_time'])) {
         $need['display_time'] = CRM_Volunteer_BAO_Need::getTimes($need['start_time'],
           CRM_Utils_Array::value('duration', $need),
