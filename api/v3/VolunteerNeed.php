@@ -73,11 +73,19 @@ function _civicrm_api3_volunteer_need_create_spec(&$params) {
  * @access public
  */
 function civicrm_api3_volunteer_need_get($params) {
-  $sql = "SELECT p.title as title, n.project_id as projectid, v.label as rolelabel FROM civicrm_volunteer_need n
-  LEFT JOIN civicrm_volunteer_project p
-    ON p.id = n.project_id
-  LEFT JOIN civicrm_option_value v
-    ON n.role_id = v.id";
+  // $sql = "SELECT p.title as title, n.project_id as projectid, v.label as rolelabel FROM civicrm_volunteer_need n
+  // JOIN civicrm_volunteer_project p
+  //   ON p.id = n.project_id
+  // JOIN civicrm_option_value v
+  //   ON n.role_id = v.id";
+  $sql = CRM_Utils_SQL_Select::fragment();
+  $sql->join(
+    'civicrm_volunteer_project',
+    'JOIN civicrm_volunteer_project p ON p.id = n.project_id'
+  );
+  $sql->select(
+    'p.title as project_title'
+  );
   $result = _civicrm_api3_basic_get(_civicrm_api3_get_BAO(__FUNCTION__), $params, TRUE, '', $sql, FALSE);
   if (!empty($result['values'])) {
     foreach ($result['values'] as &$need) {
