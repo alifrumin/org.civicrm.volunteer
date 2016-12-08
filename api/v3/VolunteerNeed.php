@@ -81,39 +81,41 @@ function civicrm_api3_volunteer_need_get($params) {
   $sql = CRM_Utils_SQL_Select::fragment();
   $sql->join(
     'title',
-    'JOIN civicrm_volunteer_project p ON p.id = civicrm_volunteer_need.project_id'
+    'JOIN civicrm_volunteer_project p ON p.id = a.project_id'
   );
-  $sql->select(
-    'p.title as title'
-  );
+  // $sql->select(
+  //   'p.title as title'
+  // );
   $result = _civicrm_api3_basic_get(_civicrm_api3_get_BAO(__FUNCTION__), $params, TRUE, '', $sql, FALSE);
-  if (!empty($result['values'])) {
-    foreach ($result['values'] as &$need) {
-      if (!empty($need['title'])) {
-        $need['project_title'] = $need['title'];
-      }
-      if (!empty($need['start_time'])) {
-        $need['display_time'] = CRM_Volunteer_BAO_Need::getTimes($need['start_time'],
-          CRM_Utils_Array::value('duration', $need),
-          CRM_Utils_Array::value('end_time', $need));
-      }
-      else {
-        $need['display_time'] = CRM_Volunteer_BAO_Need::getFlexibleDisplayTime();
-      }
-      if (isset($need['role_id'])) {
-        $role = CRM_Core_OptionGroup::getRowValues(
-          CRM_Volunteer_BAO_Assignment::ROLE_OPTION_GROUP, $need['role_id'],
-          'value'
-        );
-        $need['role_label'] = $role['label'];
-        $need['role_description'] = $role['description'];
-      }
-      elseif (CRM_Utils_Array::value('is_flexible', $need)) {
-        $need['role_label'] = CRM_Volunteer_BAO_Need::getFlexibleRoleLabel();
-        $need['role_description'] = NULL;
-      }
-    }
-  }
+  // $result = _civicrm_api3_basic_get(_civicrm_api3_get_BAO(__FUNCTION__), $params);
+
+  // if (!empty($result['values'])) {
+  //   foreach ($result['values'] as &$need) {
+  //     if (!empty($need['title'])) {
+  //       $need['project_title'] = $need['title'];
+  //     }
+  //     if (!empty($need['start_time'])) {
+  //       $need['display_time'] = CRM_Volunteer_BAO_Need::getTimes($need['start_time'],
+  //         CRM_Utils_Array::value('duration', $need),
+  //         CRM_Utils_Array::value('end_time', $need));
+  //     }
+  //     else {
+  //       $need['display_time'] = CRM_Volunteer_BAO_Need::getFlexibleDisplayTime();
+  //     }
+  //     if (isset($need['role_id'])) {
+  //       $role = CRM_Core_OptionGroup::getRowValues(
+  //         CRM_Volunteer_BAO_Assignment::ROLE_OPTION_GROUP, $need['role_id'],
+  //         'value'
+  //       );
+  //       $need['role_label'] = $role['label'];
+  //       $need['role_description'] = $role['description'];
+  //     }
+  //     elseif (CRM_Utils_Array::value('is_flexible', $need)) {
+  //       $need['role_label'] = CRM_Volunteer_BAO_Need::getFlexibleRoleLabel();
+  //       $need['role_description'] = NULL;
+  //     }
+  //   }
+  // }
   return $result;
 }
 
@@ -128,7 +130,40 @@ function _civicrm_api3_volunteer_need_get_spec(&$params) {
   // VOL-196: these aliases facilitate API chaining as well as provide backwards
   // compatibility for code referencing the fields' removed uniqueNames
   $params['id']['api.aliases'] = array('volunteer_need_id');
-  $params['project_id']['api.aliases'] = array('volunteer_project_id', 'volunteer_need_project_id');
+  $params['project_title'] = array(
+    'where' => 'civicrm_volunteer_need.project_id',
+    'pseudoconstant' => array(
+      'table' => 'civicrm_volunteer_project',
+      'keyColumn' => 'id',
+      'labelColumn' => 'title',
+    ),
+  );
+
+
+  // print_r($params); die();
+  // $params['participant_campaign_id'] => Array
+  //       (
+  //           [name] => campaign_id
+  //           [type] => 1
+  //           [title] => Campaign
+  //           [description] => The campaign for which this participant has been registered.
+  //           [import] => 1
+  //           [where] => civicrm_participant.campaign_id
+  //           [headerPattern] =>
+  //           [dataPattern] =>
+  //           [export] => 1
+  //           [FKClassName] => CRM_Campaign_DAO_Campaign
+  //           [pseudoconstant] => Array
+  //               (
+  //                   [table] => civicrm_campaign
+  //                   [keyColumn] => id
+  //                   [labelColumn] => title
+  //               )
+  //
+  //           [FKApiName] => Campaign
+  //       )
+
+  $params['project_title']['api.aliases'] = array('volunteer_project_id', 'volunteer_need_project_id');
 }
 
 function _civicrm_api3_volunteer_need_getsearchresult_spec(&$params) {
