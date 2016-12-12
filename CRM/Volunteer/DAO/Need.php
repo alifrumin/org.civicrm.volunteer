@@ -23,7 +23,7 @@
 | GNU Affero General Public License or the licensing of CiviCRM,     |
 | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
 +--------------------------------------------------------------------+
-*/
+ */
 /**
  * @package CRM
  * @copyright CiviCRM LLC (c) 2004-2015
@@ -33,8 +33,7 @@
  */
 require_once 'CRM/Core/DAO.php';
 require_once 'CRM/Utils/Type.php';
-class CRM_Volunteer_DAO_Need extends CRM_Core_DAO
-{
+class CRM_Volunteer_DAO_Need extends CRM_Core_DAO {
   /**
    * static instance to hold the table name
    *
@@ -46,40 +45,40 @@ class CRM_Volunteer_DAO_Need extends CRM_Core_DAO
    *
    * @var array
    */
-  static $_fields = null;
+  static $_fields = NULL;
   /**
    * static instance to hold the keys used in $_fields for each field.
    *
    * @var array
    */
-  static $_fieldKeys = null;
+  static $_fieldKeys = NULL;
   /**
    * static instance to hold the FK relationships
    *
    * @var string
    */
-  static $_links = null;
+  static $_links = NULL;
   /**
    * static instance to hold the values that can
    * be imported
    *
    * @var array
    */
-  static $_import = null;
+  static $_import = NULL;
   /**
    * static instance to hold the values that can
    * be exported
    *
    * @var array
    */
-  static $_export = null;
+  static $_export = NULL;
   /**
    * static value to see if we should log any modifications to
    * this table in the civicrm_log table
    *
    * @var boolean
    */
-  static $_log = true;
+  static $_log = TRUE;
   /**
    * Need Id
    *
@@ -144,8 +143,7 @@ class CRM_Volunteer_DAO_Need extends CRM_Core_DAO
    *
    * @return civicrm_volunteer_need
    */
-  function __construct()
-  {
+  function __construct() {
     $this->__table = 'civicrm_volunteer_need';
     parent::__construct();
   }
@@ -155,36 +153,70 @@ class CRM_Volunteer_DAO_Need extends CRM_Core_DAO
    * @return array
    *   [CRM_Core_Reference_Interface]
    */
-  static function getReferenceColumns()
-  {
-    if (!self::$_links) {
-      self::$_links = static ::createReferenceColumns(__CLASS__);
-      self::$_links[] = new CRM_Core_Reference_Basic(self::getTableName() , 'project_id', 'civicrm_volunteer_project', 'id');
+  static function getReferenceColumns() {
+    // if (!self::$_links) {
+    //   self::$_links = static ::createReferenceColumns(__CLASS__);
+    //   self::$_links[] = new CRM_Core_Reference_Basic(self::getTableName() , 'project_id', 'civicrm_volunteer_project', 'id');
+    // }
+    // return self::$_links;
+    if (!isset(Civi::$statics[__CLASS__]['links'])) {
+      Civi::$statics[__CLASS__]['links'] = static ::createReferenceColumns(__CLASS__);
+      Civi::$statics[__CLASS__]['links'][] = new CRM_Core_Reference_Basic(self::getTableName(), 'project_id', 'civicrm_volunteer_project', 'id');
+      CRM_Core_DAO_AllCoreTables::invoke(__CLASS__, 'links_callback', Civi::$statics[__CLASS__]['links']);
     }
-    return self::$_links;
+    return Civi::$statics[__CLASS__]['links'];
   }
   /**
    * Returns all the column names of this table
    *
    * @return array
    */
-  static function &fields()
-  {
-    if (!(self::$_fields)) {
-      self::$_fields = array(
+  static function &fields() {
+    if (!isset(Civi::$statics[__CLASS__]['fields'])) {
+      Civi::$statics[__CLASS__]['fields'] = array(
+        // 'need_id' => array(
+        //   'name' => 'id',
+        //   'type' => CRM_Utils_Type::T_INT,
+        //   'title' => ts('CiviVolunteer Need ID', array('domain' => 'org.civicrm.volunteer')) ,
+        //   'description' => 'Need Id',
+        //   'required' => true,
+        // ) ,
         'id' => array(
           'name' => 'id',
           'type' => CRM_Utils_Type::T_INT,
-          'title' => ts('CiviVolunteer Need ID', array('domain' => 'org.civicrm.volunteer')) ,
+          'title' => ts('Need ID') ,
           'description' => 'Need Id',
           'required' => true,
+          'import' => true,
+          'where' => 'civicrm_volunteer_need.id',
+          'headerPattern' => '',
+          'dataPattern' => '',
+          'export' => true,
         ) ,
+        // 'project_id' => array(
+        //   'name' => 'project_id',
+        //   'type' => CRM_Utils_Type::T_INT,
+        //   'description' => 'FK to civicrm_volunteer_project table which contains entity_table + entity for each volunteer project (initially civicrm_event + eventID).',
+        //   'required' => false,
+        //   'FKClassName' => 'CRM_Volunteer_DAO_Project',
+        // ) ,
         'project_id' => array(
           'name' => 'project_id',
           'type' => CRM_Utils_Type::T_INT,
-          'description' => 'FK to civicrm_volunteer_project table which contains entity_table + entity for each volunteer project (initially civicrm_event + eventID).',
+          'title' => ts('Project') ,
           'required' => false,
+          'description' => 'FK to civicrm_volunteer_project table which contains entity_table + entity for each volunteer project (initially civicrm_event + eventID).',
+          'import' => TRUE,
+          'where' => 'civicrm_volunteer_need.project_id',
+          'headerPattern' => '',
+          'dataPattern' => '',
+          'export' => TRUE,
           'FKClassName' => 'CRM_Volunteer_DAO_Project',
+          'pseudoconstant' => array(
+            'table' => 'civicrm_volunteer_project',
+            'keyColumn' => 'id',
+            'labelColumn' => 'title',
+          )
         ) ,
         'start_time' => array(
           'name' => 'start_time',
@@ -247,9 +279,15 @@ class CRM_Volunteer_DAO_Need extends CRM_Core_DAO
           'required' => true,
           'default' => '1',
         ) ,
+        // 'title' => array(
+        //   'name' => 'title',
+        //   'FKClassName' => 'CRM_Volunteer_DAO_Project',
+        //   'FKApiName' => 'VolunteerProject',
+        // ),
       );
+      CRM_Core_DAO_AllCoreTables::invoke(__CLASS__, 'fields_callback', Civi::$statics[__CLASS__]['fields']);
     }
-    return self::$_fields;
+    return Civi::$statics[__CLASS__]['fields'];
   }
   /**
    * Returns an array containing, for each field, the arary key used for that
@@ -257,31 +295,33 @@ class CRM_Volunteer_DAO_Need extends CRM_Core_DAO
    *
    * @return array
    */
-  static function &fieldKeys()
-  {
-    if (!(self::$_fieldKeys)) {
-      self::$_fieldKeys = array(
-        'id' => 'id',
-        'project_id' => 'project_id',
-        'start_time' => 'start_time',
-        'end_time' => 'end_time',
-        'duration' => 'duration',
-        'is_flexible' => 'is_flexible',
-        'quantity' => 'quantity',
-        'visibility_id' => 'visibility_id',
-        'role_id' => 'role_id',
-        'is_active' => 'is_active',
-      );
+  static function &fieldKeys() {
+    // if (!(self::$_fieldKeys)) {
+    //   self::$_fieldKeys = array(
+    //     'id' => 'id',
+    //     'project_id' => 'need_project_id',
+    //     'start_time' => 'start_time',
+    //     'end_time' => 'end_time',
+    //     'duration' => 'duration',
+    //     'is_flexible' => 'is_flexible',
+    //     'quantity' => 'quantity',
+    //     'visibility_id' => 'visibility_id',
+    //     'role_id' => 'role_id',
+    //     'is_active' => 'is_active',
+    //   );
+    // }
+    // return self::$_fieldKeys;
+    if (!isset(Civi::$statics[__CLASS__]['fieldKeys'])) {
+      Civi::$statics[__CLASS__]['fieldKeys'] = array_flip(CRM_Utils_Array::collect('name', self::fields()));
     }
-    return self::$_fieldKeys;
+    return Civi::$statics[__CLASS__]['fieldKeys'];
   }
   /**
    * Returns the names of this table
    *
    * @return string
    */
-  static function getTableName()
-  {
+  static function getTableName() {
     return self::$_tableName;
   }
   /**
@@ -289,8 +329,7 @@ class CRM_Volunteer_DAO_Need extends CRM_Core_DAO
    *
    * @return boolean
    */
-  function getLog()
-  {
+  function getLog() {
     return self::$_log;
   }
   /**
@@ -300,22 +339,23 @@ class CRM_Volunteer_DAO_Need extends CRM_Core_DAO
    *
    * @return array
    */
-  static function &import($prefix = false)
-  {
-    if (!(self::$_import)) {
-      self::$_import = array();
-      $fields = self::fields();
-      foreach($fields as $name => $field) {
-        if (CRM_Utils_Array::value('import', $field)) {
-          if ($prefix) {
-            self::$_import['volunteer_need'] = & $fields[$name];
-          } else {
-            self::$_import[$name] = & $fields[$name];
-          }
-        }
-      }
-    }
-    return self::$_import;
+  static function &import($prefix = false) {
+    // if (!(self::$_import)) {
+    //   self::$_import = array();
+    //   $fields = self::fields();
+    //   foreach($fields as $name => $field) {
+    //     if (CRM_Utils_Array::value('import', $field)) {
+    //       if ($prefix) {
+    //         self::$_import['volunteer_need'] = & $fields[$name];
+    //       } else {
+    //         self::$_import[$name] = & $fields[$name];
+    //       }
+    //     }
+    //   }
+    // }
+    // return self::$_import;
+    $r = CRM_Core_DAO_AllCoreTables::getImports(__CLASS__, 'need', $prefix, array());
+    return $r;
   }
   /**
    * Returns the list of fields that can be exported
@@ -324,21 +364,23 @@ class CRM_Volunteer_DAO_Need extends CRM_Core_DAO
    *
    * @return array
    */
-  static function &export($prefix = false)
-  {
-    if (!(self::$_export)) {
-      self::$_export = array();
-      $fields = self::fields();
-      foreach($fields as $name => $field) {
-        if (CRM_Utils_Array::value('export', $field)) {
-          if ($prefix) {
-            self::$_export['volunteer_need'] = & $fields[$name];
-          } else {
-            self::$_export[$name] = & $fields[$name];
-          }
-        }
-      }
-    }
-    return self::$_export;
+  static function &export($prefix = FALSE) {
+    // if (!(self::$_export)) {
+    //   self::$_export = array();
+    //   $fields = self::fields();
+    //   foreach($fields as $name => $field) {
+    //     if (CRM_Utils_Array::value('export', $field)) {
+    //       if ($prefix) {
+    //         self::$_export['volunteer_need'] = & $fields[$name];
+    //       } else {
+    //         self::$_export[$name] = & $fields[$name];
+    //       }
+    //     }
+    //   }
+    // }
+    // return self::$_export;
+    $r = CRM_Core_DAO_AllCoreTables::getExports(__CLASS__, 'need', $prefix, array());
+    return $r;
   }
+
 }

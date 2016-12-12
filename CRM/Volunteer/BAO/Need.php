@@ -221,4 +221,24 @@ class CRM_Volunteer_BAO_Need extends CRM_Volunteer_DAO_Need {
       'volunteer_need_id' => $need_id,
     ));
   }
+  /**
+   * Fetch object based on array of properties.
+   *
+   * @param array $params
+   *   (reference ) an assoc array of name/value pairs.
+   * @param array $defaults
+   *   (reference ) an assoc array to hold the flattened values.
+   *
+   * @return CRM_Grant_BAO_ManageGrant
+   */
+  public static function retrieve(&$params, &$defaults) {
+    $grant = new CRM_Volunteer_DAO_Need();
+    $grant->copyValues($params);
+    if ($grant->find(TRUE)) {
+      CRM_Core_DAO::storeValues($grant, $defaults);
+      return $grant;
+    }
+    return NULL;
+  }
+
 }
